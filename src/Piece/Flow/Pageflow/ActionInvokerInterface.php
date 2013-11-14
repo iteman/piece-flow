@@ -35,7 +35,7 @@
  * @since      File available since Release 2.0.0
  */
 
-namespace Piece\Flow\Continuation;
+namespace Piece\Flow\Pageflow;
 
 /**
  * @package    Piece_Flow
@@ -44,22 +44,14 @@ namespace Piece\Flow\Continuation;
  * @version    Release: @package_version@
  * @since      Class available since Release 2.0.0
  */
-interface ContinuationContextProvider
+interface ActionInvokerInterface
 {
     /**
+     * @param  string                            $actionID
+     * @param  \Piece\Flow\Pageflow\EventContext $eventContext
      * @return string
      */
-    public function getEventID();
-
-    /**
-     * @return string
-     */
-    public function getPageflowID();
-
-    /**
-     * @return string
-     */
-    public function getPageflowInstanceID();
+    public function invoke($actionID, EventContext $eventContext);
 }
 
 /*

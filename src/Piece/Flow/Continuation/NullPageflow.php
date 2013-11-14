@@ -4,7 +4,7 @@
 /**
  * PHP version 5.3
  *
- * Copyright (c) 2012 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2012-2013 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @package    Piece_Flow
- * @copyright  2012 KUBO Atsuhiro <kubo@iteman.jp>
+ * @copyright  2012-2013 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
  * @version    Release: @package_version@
  * @since      File available since Release 2.0.0
@@ -37,29 +37,84 @@
 
 namespace Piece\Flow\Continuation;
 
+use Piece\Flow\Pageflow\ActionInvokerInterface;
+use Piece\Flow\Pageflow\PageflowInterface;
+
 /**
  * @package    Piece_Flow
- * @copyright  2012 KUBO Atsuhiro <kubo@iteman.jp>
+ * @copyright  2012-2013 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
  * @version    Release: @package_version@
  * @since      Class available since Release 2.0.0
  */
-interface ContinuationContextProvider
+class NullPageflow implements PageflowInterface
 {
     /**
-     * @return string
+     * @var string
      */
-    public function getEventID();
+    protected $id;
 
     /**
-     * @return string
+     * @param string $id
      */
-    public function getPageflowID();
+    public function __construct($id)
+    {
+        $this->id = $id;
+    }
+
+    public function getID()
+    {
+        return $this->id;
+    }
+
+    public function getAttributes()
+    {
+        return null;
+    }
+
+    public function getCurrentState()
+    {
+        return null;
+    }
+
+    public function getPreviousState()
+    {
+        return null;
+    }
+
+    public function getCurrentView()
+    {
+        return null;
+    }
+
+    public function isInFinalState()
+    {
+        return false;
+    }
+
+    public function setActionInvoker(ActionInvokerInterface $actionInvoker)
+    {
+    }
 
     /**
-     * @return string
+     * {@inheritDoc}
      */
-    public function getPageflowInstanceID();
+    public function getActionInvoker()
+    {
+        return null;
+    }
+
+    public function setPayload($payload)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLastTransitionEvent()
+    {
+        return null;
+    }
 }
 
 /*

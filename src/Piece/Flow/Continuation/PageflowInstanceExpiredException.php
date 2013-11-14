@@ -44,22 +44,8 @@ namespace Piece\Flow\Continuation;
  * @version    Release: @package_version@
  * @since      Class available since Release 2.0.0
  */
-interface ContinuationContextProvider
+class PageflowInstanceExpiredException extends \RuntimeException
 {
-    /**
-     * @return string
-     */
-    public function getEventID();
-
-    /**
-     * @return string
-     */
-    public function getPageflowID();
-
-    /**
-     * @return string
-     */
-    public function getPageflowInstanceID();
 }
 
 /*

@@ -78,14 +78,14 @@ class GarbageCollector
     /**
      * Updates the state of the specified page flow instance.
      *
-     * @param string $pageFlowInstanceID
+     * @param string $pageflowInstanceID
      */
-    public function update($pageFlowInstanceID)
+    public function update($pageflowInstanceID)
     {
-        if (array_key_exists($pageFlowInstanceID, $this->garbageMarkers)) {
-            $this->garbageMarkers[$pageFlowInstanceID]->updateModificationTimestamp($this->clock->now()->getTimestamp());
+        if (array_key_exists($pageflowInstanceID, $this->garbageMarkers)) {
+            $this->garbageMarkers[$pageflowInstanceID]->updateModificationTimestamp($this->clock->now()->getTimestamp());
         } else {
-            $this->garbageMarkers[$pageFlowInstanceID] = new GarbageMarker($this->clock->now()->getTimestamp());
+            $this->garbageMarkers[$pageflowInstanceID] = new GarbageMarker($this->clock->now()->getTimestamp());
         }
     }
 
@@ -93,13 +93,13 @@ class GarbageCollector
      * Returns whether or not the specified page flow instance is marked as
      * a target for sweeping.
      *
-     * @param  string  $pageFlowInstanceID
+     * @param  string  $pageflowInstanceID
      * @return boolean
      */
-    public function shouldSweep($pageFlowInstanceID)
+    public function shouldSweep($pageflowInstanceID)
     {
-        if (array_key_exists($pageFlowInstanceID, $this->garbageMarkers)) {
-            return $this->garbageMarkers[$pageFlowInstanceID]->isEnabled();
+        if (array_key_exists($pageflowInstanceID, $this->garbageMarkers)) {
+            return $this->garbageMarkers[$pageflowInstanceID]->isEnabled();
         } else {
             return false;
         }
@@ -111,7 +111,7 @@ class GarbageCollector
     public function mark()
     {
         reset($this->garbageMarkers);
-        while (list($pageFlowInstanceID, $marker) = each($this->garbageMarkers)) {
+        while (list($pageflowInstanceID, $marker) = each($this->garbageMarkers)) {
             if (!$marker->isSwept() && $marker->isExpired($this->clock->now()->getTimestamp(), $this->expirationTime)) {
                 $marker->markAsEnabled();
             }
@@ -126,9 +126,9 @@ class GarbageCollector
     public function sweep($callback)
     {
         reset($this->garbageMarkers);
-        while (list($pageFlowInstanceID, $marker) = each($this->garbageMarkers)) {
+        while (list($pageflowInstanceID, $marker) = each($this->garbageMarkers)) {
             if (!$marker->isSwept() && $marker->isEnabled()) {
-                call_user_func($callback, $pageFlowInstanceID);
+                call_user_func($callback, $pageflowInstanceID);
                 $marker->markAsSwept();
             }
         }

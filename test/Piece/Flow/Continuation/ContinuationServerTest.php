@@ -41,10 +41,10 @@ use Stagehand\FSM\Event\EventInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 use Piece\Flow\Continuation\GarbageCollection\GarbageCollector;
-use Piece\Flow\PageFlow\EventContext;
-use Piece\Flow\PageFlow\PageFlowRegistries;
-use Piece\Flow\PageFlow\PageFlowRegistry;
-use Piece\Flow\PageFlow\PageFlowRepository;
+use Piece\Flow\Pageflow\EventContext;
+use Piece\Flow\Pageflow\PageflowRegistries;
+use Piece\Flow\Pageflow\PageflowRegistry;
+use Piece\Flow\Pageflow\PageflowRepository;
 
 /**
  * @package    Piece_Flow
@@ -61,13 +61,13 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      * @var string
      * @since Property available since Release 2.0.0
      */
-    protected $pageFlowInstanceID;
+    protected $pageflowInstanceID;
 
     /**
      * @var string
      * @since Property available since Release 2.0.0
      */
-    protected $pageFlowID;
+    protected $pageflowID;
 
     /**
      * @var string
@@ -81,14 +81,14 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      */
     protected $continuationContextProvider;
 
-    public function getPageFlowInstanceID()
+    public function getPageflowInstanceID()
     {
-        return $this->pageFlowInstanceID;
+        return $this->pageflowInstanceID;
     }
 
-    public function getPageFlowID()
+    public function getPageflowID()
     {
-        return $this->pageFlowID;
+        return $this->pageflowID;
     }
 
     public function getEventID()
@@ -102,8 +102,8 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
         $this->continuationContextProvider = \Phake::mock('Piece\Flow\Continuation\ContinuationContextProvider');
         $self = $this;
         \Phake::when($this->continuationContextProvider)->getEventID()->thenGetReturnByLambda(function () use ($self) { return $self->getEventID(); });
-        \Phake::when($this->continuationContextProvider)->getPageFlowID()->thenGetReturnByLambda(function () use ($self) { return $self->getPageFlowID(); });
-        \Phake::when($this->continuationContextProvider)->getPageFlowInstanceID()->thenGetReturnByLambda(function () use ($self) { return $self->getPageFlowInstanceID(); });
+        \Phake::when($this->continuationContextProvider)->getPageflowID()->thenGetReturnByLambda(function () use ($self) { return $self->getPageflowID(); });
+        \Phake::when($this->continuationContextProvider)->getPageflowInstanceID()->thenGetReturnByLambda(function () use ($self) { return $self->getPageflowInstanceID(); });
     }
 
     /**
@@ -111,32 +111,32 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      *
      * @test
      */
-    public function startsPageFlowInstancesForAnExclusivePageFlow()
+    public function startsPageflowInstancesForAnExclusivePageflow()
     {
-        $pageFlowInstanceRepository = $this->createPageFlowInstanceRepository();
-        $pageFlowInstanceRepository->addPageFlow('Counter', true);
-        $continuationServer = new ContinuationServer($pageFlowInstanceRepository);
+        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
+        $pageflowInstanceRepository->addPageflow('Counter', true);
+        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance1 = $continuationServer->getPageFlowInstance();
+        $pageflowInstance1 = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance2 = $continuationServer->getPageFlowInstance();
+        $pageflowInstance2 = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->assertThat($pageFlowInstance2->getID(), $this->logicalNot($this->equalTo($pageFlowInstance1->getID())));
-        $this->assertThat($continuationServer->getPageFlowInstanceRepository()->findByID($pageFlowInstance1->getID()), $this->isNull());
-        $this->assertThat($continuationServer->getPageFlowInstanceRepository()->findByID($pageFlowInstance2->getID()), $this->logicalNot($this->isNull()));
+        $this->assertThat($pageflowInstance2->getID(), $this->logicalNot($this->equalTo($pageflowInstance1->getID())));
+        $this->assertThat($continuationServer->getPageflowInstanceRepository()->findByID($pageflowInstance1->getID()), $this->isNull());
+        $this->assertThat($continuationServer->getPageflowInstanceRepository()->findByID($pageflowInstance2->getID()), $this->logicalNot($this->isNull()));
     }
 
     /**
@@ -144,32 +144,32 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      *
      * @test
      */
-    public function startsPageFlowInstancesForANonExclusivePageFlow()
+    public function startsPageflowInstancesForANonExclusivePageflow()
     {
-        $pageFlowInstanceRepository = $this->createPageFlowInstanceRepository();
-        $pageFlowInstanceRepository->addPageFlow('Counter', false);
-        $continuationServer = new ContinuationServer($pageFlowInstanceRepository);
+        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
+        $pageflowInstanceRepository->addPageflow('Counter', false);
+        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance1 = $continuationServer->getPageFlowInstance();
+        $pageflowInstance1 = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance2 = $continuationServer->getPageFlowInstance();
+        $pageflowInstance2 = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->assertThat($pageFlowInstance2->getID(), $this->logicalNot($this->equalTo($pageFlowInstance1->getID())));
-        $this->assertThat($continuationServer->getPageFlowInstanceRepository()->findByID($pageFlowInstance1->getID()), $this->logicalNot($this->isNull()));
-        $this->assertThat($continuationServer->getPageFlowInstanceRepository()->findByID($pageFlowInstance2->getID()), $this->logicalNot($this->isNull()));
+        $this->assertThat($pageflowInstance2->getID(), $this->logicalNot($this->equalTo($pageflowInstance1->getID())));
+        $this->assertThat($continuationServer->getPageflowInstanceRepository()->findByID($pageflowInstance1->getID()), $this->logicalNot($this->isNull()));
+        $this->assertThat($continuationServer->getPageflowInstanceRepository()->findByID($pageflowInstance2->getID()), $this->logicalNot($this->isNull()));
     }
 
     /**
@@ -177,33 +177,33 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      *
      * @test
      */
-    public function startsPageFlowInstancesForMultiplePageFlows()
+    public function startsPageflowInstancesForMultiplePageflows()
     {
-        $pageFlowInstanceRepository = $this->createPageFlowInstanceRepository();
-        $pageFlowInstanceRepository->addPageFlow('Counter', false);
-        $pageFlowInstanceRepository->addPageFlow('SecondCounter', false);
-        $continuationServer = new ContinuationServer($pageFlowInstanceRepository);
+        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
+        $pageflowInstanceRepository->addPageflow('Counter', false);
+        $pageflowInstanceRepository->addPageflow('SecondCounter', false);
+        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance1 = $continuationServer->getPageFlowInstance();
+        $pageflowInstance1 = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->pageFlowID = 'SecondCounter';
+        $this->pageflowID = 'SecondCounter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance2 = $continuationServer->getPageFlowInstance();
+        $pageflowInstance2 = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->assertThat($pageFlowInstance2->getID(), $this->logicalNot($this->equalTo($pageFlowInstance1->getID())));
-        $this->assertThat($continuationServer->getPageFlowInstanceRepository()->findByID($pageFlowInstance1->getID()), $this->logicalNot($this->isNull()));
-        $this->assertThat($continuationServer->getPageFlowInstanceRepository()->findByID($pageFlowInstance2->getID()), $this->logicalNot($this->isNull()));
+        $this->assertThat($pageflowInstance2->getID(), $this->logicalNot($this->equalTo($pageflowInstance1->getID())));
+        $this->assertThat($continuationServer->getPageflowInstanceRepository()->findByID($pageflowInstance1->getID()), $this->logicalNot($this->isNull()));
+        $this->assertThat($continuationServer->getPageflowInstanceRepository()->findByID($pageflowInstance2->getID()), $this->logicalNot($this->isNull()));
     }
 
     /**
@@ -211,57 +211,57 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      *
      * @test
      */
-    public function continuesAPageFlowInstance()
+    public function continuesAPageflowInstance()
     {
-        $pageFlowInstanceRepository = $this->createPageFlowInstanceRepository();
-        $pageFlowInstanceRepository->addPageFlow('Counter', false);
-        $continuationServer = new ContinuationServer($pageFlowInstanceRepository);
+        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
+        $pageflowInstanceRepository->addPageflow('Counter', false);
+        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance1 = $continuationServer->getPageFlowInstance();
+        $pageflowInstance1 = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = $pageFlowInstance1->getID();
+        $this->pageflowInstanceID = $pageflowInstance1->getID();
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance2 = $continuationServer->getPageFlowInstance();
+        $pageflowInstance2 = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->assertThat($pageFlowInstance2->getID(), ($this->equalTo($pageFlowInstance1->getID())));
-        $this->assertThat($pageFlowInstance2->getAttributes()->get('counter'), $this->equalTo(2));
+        $this->assertThat($pageflowInstance2->getID(), ($this->equalTo($pageflowInstance1->getID())));
+        $this->assertThat($pageflowInstance2->getAttributes()->get('counter'), $this->equalTo(2));
     }
 
     /**
      * @test
-     * @expectedException \Piece\Flow\Continuation\UnexpectedPageFlowIDException
+     * @expectedException \Piece\Flow\Continuation\UnexpectedPageflowIDException
      */
-    public function raisesAnExceptionWhenAnUnexpectedPageFlowIdIsSpecifiedForTheSecondTimeOrLater()
+    public function raisesAnExceptionWhenAnUnexpectedPageflowIdIsSpecifiedForTheSecondTimeOrLater()
     {
-        $pageFlowInstanceRepository = $this->createPageFlowInstanceRepository();
-        $pageFlowInstanceRepository->addPageFlow('Counter', false);
-        $pageFlowInstanceRepository->addPageFlow('SecondCounter', false);
-        $continuationServer = new ContinuationServer($pageFlowInstanceRepository);
+        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
+        $pageflowInstanceRepository->addPageflow('Counter', false);
+        $pageflowInstanceRepository->addPageflow('SecondCounter', false);
+        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance = $continuationServer->getPageFlowInstance();
+        $pageflowInstance = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->pageFlowID = 'SecondCounter';
+        $this->pageflowID = 'SecondCounter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = $pageFlowInstance->getID();
+        $this->pageflowInstanceID = $pageflowInstance->getID();
         $continuationServer->activate(new \stdClass());
     }
 
@@ -270,31 +270,31 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      * @since Method available since Release 2.0.0
      *
      * @test
-     * @dataProvider providePageFlowExclusiveness
+     * @dataProvider providePageflowExclusiveness
      */
-    public function findsThePageFlowInstanceByAPageFlowId($exclusive)
+    public function findsThePageflowInstanceByAPageflowId($exclusive)
     {
-        $pageFlowInstanceRepository = $this->createPageFlowInstanceRepository();
-        $pageFlowInstanceRepository->addPageFlow('Counter', $exclusive);
-        $continuationServer = new ContinuationServer($pageFlowInstanceRepository);
+        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
+        $pageflowInstanceRepository->addPageflow('Counter', $exclusive);
+        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
         $continuationServer->shutdown();
 
-        $this->assertThat($continuationServer->getPageFlowInstanceRepository()->findByPageFlowID('Counter'), $exclusive ? $this->identicalTo($continuationServer->getPageFlowInstance()) : $this->isNull());
+        $this->assertThat($continuationServer->getPageflowInstanceRepository()->findByPageflowID('Counter'), $exclusive ? $this->identicalTo($continuationServer->getPageflowInstance()) : $this->isNull());
     }
 
     /**
      * @return array
      * @since Method available since Release 2.0.0
      */
-    public function providePageFlowExclusiveness()
+    public function providePageflowExclusiveness()
     {
         return array(array(true), array(false));
     }
@@ -309,36 +309,36 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      * @test
      * @dataProvider provideTimesForExpiration
      */
-    public function raisesAnExceptionWhenThePageFlowInstanceHasExpired($expirationTime, $firstTime, $secondTime, $shouldRaiseException)
+    public function raisesAnExceptionWhenThePageflowInstanceHasExpired($expirationTime, $firstTime, $secondTime, $shouldRaiseException)
     {
         $clock = \Phake::mock('Piece\Flow\Continuation\GarbageCollection\Clock');
         \Phake::when($clock)->now()
             ->thenReturn(new \DateTime($firstTime))
             ->thenReturn(new \DateTime($secondTime));
-        $pageFlowInstanceRepository = $this->createPageFlowInstanceRepository();
-        $pageFlowInstanceRepository->addPageFlow('Counter', false);
-        $continuationServer = new ContinuationServer($pageFlowInstanceRepository, new GarbageCollector($expirationTime, $clock));
-        $continuationServer->setActionInvoker(\Phake::mock('Piece\Flow\PageFlow\ActionInvokerInterface'));
+        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
+        $pageflowInstanceRepository->addPageflow('Counter', false);
+        $continuationServer = new ContinuationServer($pageflowInstanceRepository, new GarbageCollector($expirationTime, $clock));
+        $continuationServer->setActionInvoker(\Phake::mock('Piece\Flow\Pageflow\ActionInvokerInterface'));
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance = $continuationServer->getPageFlowInstance();
+        $pageflowInstance = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->pageFlowID = 'Counter';
+        $this->pageflowID = 'Counter';
         $this->eventID = null;
-        $this->pageFlowInstanceID = $pageFlowInstance->getID();
+        $this->pageflowInstanceID = $pageflowInstance->getID();
 
         if ($shouldRaiseException) {
             try {
                 $continuationServer->activate(new \stdClass());
                 $continuationServer->shutdown();
                 $this->fail('An expected exception has not been raised.');
-            } catch (PageFlowInstanceExpiredException $e) {
+            } catch (PageflowInstanceExpiredException $e) {
             }
         } else {
             $continuationServer->activate(new \stdClass());
@@ -364,54 +364,54 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      */
     public function validatesTheLastReceivedEvent()
     {
-        $pageFlowInstanceRepository = $this->createPageFlowInstanceRepository();
-        $pageFlowInstanceRepository->addPageFlow('CheckLastEvent', false);
-        $continuationServer = new ContinuationServer($pageFlowInstanceRepository);
+        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
+        $pageflowInstanceRepository->addPageflow('CheckLastEvent', false);
+        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
-        $this->pageFlowID = 'CheckLastEvent';
+        $this->pageflowID = 'CheckLastEvent';
         $this->eventID = 'nonExistingEvent';
-        $this->pageFlowInstanceID = null;
+        $this->pageflowInstanceID = null;
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance = $continuationServer->getPageFlowInstance();
+        $pageflowInstance = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->assertThat($pageFlowInstance->getLastTransitionEvent(), $this->logicalNot($this->isNull()));
-        $this->assertThat($pageFlowInstance->getLastTransitionEvent()->getEventID(), $this->equalTo(EventInterface::EVENT_START));
+        $this->assertThat($pageflowInstance->getLastTransitionEvent(), $this->logicalNot($this->isNull()));
+        $this->assertThat($pageflowInstance->getLastTransitionEvent()->getEventID(), $this->equalTo(EventInterface::EVENT_START));
 
-        $this->pageFlowID = 'CheckLastEvent';
+        $this->pageflowID = 'CheckLastEvent';
         $this->eventID = 'DisplayEditConfirmFromDisplayEdit';
-        $this->pageFlowInstanceID = $pageFlowInstance->getID();
+        $this->pageflowInstanceID = $pageflowInstance->getID();
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance = $continuationServer->getPageFlowInstance();
+        $pageflowInstance = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->assertThat($pageFlowInstance->getLastTransitionEvent(), $this->logicalNot($this->isNull()));
-        $this->assertThat($pageFlowInstance->getLastTransitionEvent()->getEventID(), $this->equalTo('DisplayEditConfirmFromDisplayEdit'));
+        $this->assertThat($pageflowInstance->getLastTransitionEvent(), $this->logicalNot($this->isNull()));
+        $this->assertThat($pageflowInstance->getLastTransitionEvent()->getEventID(), $this->equalTo('DisplayEditConfirmFromDisplayEdit'));
 
-        $this->pageFlowID = 'CheckLastEvent';
+        $this->pageflowID = 'CheckLastEvent';
         $this->eventID = 'nonExistingEvent';
-        $this->pageFlowInstanceID = $pageFlowInstance->getID();
+        $this->pageflowInstanceID = $pageflowInstance->getID();
         $continuationServer->activate(new \stdClass());
-        $pageFlowInstance = $continuationServer->getPageFlowInstance();
+        $pageflowInstance = $continuationServer->getPageflowInstance();
         $continuationServer->shutdown();
 
-        $this->assertThat($pageFlowInstance->getLastTransitionEvent(), $this->isNull());
+        $this->assertThat($pageflowInstance->getLastTransitionEvent(), $this->isNull());
     }
 
     /**
-     * @return \Piece\Flow\PageFlow\ActionInvokerInterface
+     * @return \Piece\Flow\Pageflow\ActionInvokerInterface
      */
     protected function createCounterActionInvoker()
     {
-        $actionInvoker = \Phake::mock('Piece\Flow\PageFlow\ActionInvokerInterface');
+        $actionInvoker = \Phake::mock('Piece\Flow\Pageflow\ActionInvokerInterface');
         \Phake::when($actionInvoker)->invoke('setup', $this->anything())->thenGetReturnByLambda(function ($actionID, EventContext $eventContext) {
-            $eventContext->getPageFlow()->getAttributes()->set('counter', 0);
+            $eventContext->getPageflow()->getAttributes()->set('counter', 0);
         });
         \Phake::when($actionInvoker)->invoke('increase', $this->anything())->thenGetReturnByLambda(function ($actionID, EventContext $eventContext) {
-            $eventContext->getPageFlow()->getAttributes()->set('counter', $eventContext->getPageFlow()->getAttributes()->get('counter') + 1);
+            $eventContext->getPageflow()->getAttributes()->set('counter', $eventContext->getPageflow()->getAttributes()->get('counter') + 1);
         });
 
         return $actionInvoker;
@@ -420,11 +420,11 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
     /**
      * @since Method available since Release 2.0.0
      *
-     * @return \Piece\Flow\Continuation\PageFlowInstanceRepository
+     * @return \Piece\Flow\Continuation\PageflowInstanceRepository
      */
-    protected function createPageFlowInstanceRepository()
+    protected function createPageflowInstanceRepository()
     {
-        return new PageFlowInstanceRepository(new PageFlowRepository(new PageFlowRegistries(array(new PageFlowRegistry($this->cacheDirectory, '.yaml'))), $this->cacheDirectory, true));
+        return new PageflowInstanceRepository(new PageflowRepository(new PageflowRegistries(array(new PageflowRegistry($this->cacheDirectory, '.yaml'))), $this->cacheDirectory, true));
     }
 }
 

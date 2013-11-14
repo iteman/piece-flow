@@ -4,7 +4,7 @@
 /**
  * PHP version 5.3
  *
- * Copyright (c) 2012 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2012-2013 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,37 +29,75 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @package    Piece_Flow
- * @copyright  2012 KUBO Atsuhiro <kubo@iteman.jp>
+ * @copyright  2012-2013 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
  * @version    Release: @package_version@
  * @since      File available since Release 2.0.0
  */
 
-namespace Piece\Flow\Continuation;
+namespace Piece\Flow\Pageflow;
+
+use Stagehand\FSM\Event\EventInterface;
 
 /**
  * @package    Piece_Flow
- * @copyright  2012 KUBO Atsuhiro <kubo@iteman.jp>
+ * @copyright  2012-2013 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
  * @version    Release: @package_version@
  * @since      Class available since Release 2.0.0
  */
-interface ContinuationContextProvider
+class EventContext
 {
     /**
-     * @return string
+     * @var \Stagehand\FSM\Event\EventInterface
      */
-    public function getEventID();
+    protected $event;
 
     /**
-     * @return string
+     * @var mixed
      */
-    public function getPageflowID();
+    protected $payload;
 
     /**
-     * @return string
+     * @var \Piece\Flow\Pageflow\PageflowInterface
      */
-    public function getPageflowInstanceID();
+    protected $pageflow;
+
+    /**
+     * @param \Stagehand\FSM\Event\EventInterface    $event
+     * @param mixed                                  $payload
+     * @param \Piece\Flow\Pageflow\PageflowInterface $pageflow
+     */
+    public function __construct(EventInterface $event, $payload, PageflowInterface $pageflow)
+    {
+        $this->event = $event;
+        $this->payload = $payload;
+        $this->pageflow = $pageflow;
+    }
+
+    /**
+     * @return \Stagehand\FSM\Event\EventInterface
+     */
+    public function getEvent()
+    {
+        return $this->event;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPayload()
+    {
+        return $this->payload;
+    }
+
+    /**
+     * @return \Piece\Flow\Pageflow\PageflowInterface
+     */
+    public function getPageflow()
+    {
+        return $this->pageflow;
+    }
 }
 
 /*

@@ -40,7 +40,7 @@ namespace Piece\Flow\Continuation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 use Piece\Flow\Continuation\GarbageCollection\GarbageCollector;
-use Piece\Flow\PageFlow\ActionInvokerInterface;
+use Piece\Flow\Pageflow\ActionInvokerInterface;
 
 /**
  * The continuation server.
@@ -59,12 +59,12 @@ class ContinuationServer
     protected $garbageCollector;
 
     /**
-     * @var \Piece\Flow\Continuation\PageFlowInstanceRepository
+     * @var \Piece\Flow\Continuation\PageflowInstanceRepository
      */
-    protected $pageFlowInstanceRepository;
+    protected $pageflowInstanceRepository;
 
     /**
-     * @var \Piece\Flow\PageFlow\ActionInvokerInterface
+     * @var \Piece\Flow\Pageflow\ActionInvokerInterface
      * @since Property available since Release 2.0.0
      */
     protected $actionInvoker;
@@ -82,21 +82,21 @@ class ContinuationServer
     protected $eventDispatcher;
 
     /**
-     * @var \Piece\Flow\Continuation\PageFlowInstance
+     * @var \Piece\Flow\Continuation\PageflowInstance
      * @since Property available since Release 2.0.0
      */
-    protected $pageFlowInstance;
+    protected $pageflowInstance;
 
     private static $activeInstances = array();
     private static $shutdownRegistered = false;
 
     /**
-     * @param \Piece\Flow\Continuation\PageFlowInstanceRepository         $pageFlowInstanceRepository
+     * @param \Piece\Flow\Continuation\PageflowInstanceRepository         $pageflowInstanceRepository
      * @param \Piece\Flow\Continuation\GarbageCollection\GarbageCollector $garbageCollector
      */
-    public function __construct(PageFlowInstanceRepository $pageFlowInstanceRepository, GarbageCollector $garbageCollector = null)
+    public function __construct(PageflowInstanceRepository $pageflowInstanceRepository, GarbageCollector $garbageCollector = null)
     {
-        $this->pageFlowInstanceRepository = $pageFlowInstanceRepository;
+        $this->pageflowInstanceRepository = $pageflowInstanceRepository;
         $this->garbageCollector = $garbageCollector;
     }
 
@@ -108,7 +108,7 @@ class ContinuationServer
     {
         return array(
             'garbageCollector',
-            'pageFlowInstanceRepository',
+            'pageflowInstanceRepository',
         );
     }
 
@@ -123,11 +123,11 @@ class ContinuationServer
             $this->garbageCollector->mark();
         }
 
-        $this->pageFlowInstance = $this->createPageFlowInstance($payload);
-        $this->pageFlowInstance->activate($this->continuationContextProvider->getEventID());
+        $this->pageflowInstance = $this->createPageflowInstance($payload);
+        $this->pageflowInstance->activate($this->continuationContextProvider->getEventID());
 
-        if (!is_null($this->garbageCollector) && !$this->pageFlowInstanceRepository->checkPageFlowIsExclusive($this->pageFlowInstance)) {
-            $this->garbageCollector->update($this->pageFlowInstance->getID());
+        if (!is_null($this->garbageCollector) && !$this->pageflowInstanceRepository->checkPageflowIsExclusive($this->pageflowInstance)) {
+            $this->garbageCollector->update($this->pageflowInstance->getID());
         }
 
         self::$activeInstances[] = $this;
@@ -157,18 +157,18 @@ class ContinuationServer
      */
     public function clear()
     {
-        if (!is_null($this->pageFlowInstance)) {
-            if ($this->pageFlowInstance->isInFinalState()) {
-                $this->pageFlowInstanceRepository->remove($this->pageFlowInstance);
+        if (!is_null($this->pageflowInstance)) {
+            if ($this->pageflowInstance->isInFinalState()) {
+                $this->pageflowInstanceRepository->remove($this->pageflowInstance);
             }
         }
 
         if (!is_null($this->garbageCollector)) {
-            $pageFlowInstanceRepository = $this->pageFlowInstanceRepository;
-            $this->garbageCollector->sweep(function ($pageFlowInstanceID) use ($pageFlowInstanceRepository) {
-                $pageFlowInstance = $pageFlowInstanceRepository->findByID($pageFlowInstanceID);
-                if (!is_null($pageFlowInstance)) {
-                    $pageFlowInstance->removePageFlow();
+            $pageflowInstanceRepository = $this->pageflowInstanceRepository;
+            $this->garbageCollector->sweep(function ($pageflowInstanceID) use ($pageflowInstanceRepository) {
+                $pageflowInstance = $pageflowInstanceRepository->findByID($pageflowInstanceID);
+                if (!is_null($pageflowInstance)) {
+                    $pageflowInstance->removePageflow();
                 }
             });
         }
@@ -177,7 +177,7 @@ class ContinuationServer
     /**
      * Sets the action invoker.
      *
-     * @param \Piece\Flow\PageFlow\ActionInvokerInterface $actionInvoker
+     * @param \Piece\Flow\Pageflow\ActionInvokerInterface $actionInvoker
      * @since Method available since Release 2.0.0
      */
     public function setActionInvoker(ActionInvokerInterface $actionInvoker)
@@ -204,21 +204,21 @@ class ContinuationServer
     }
 
     /**
-     * @return \Piece\Flow\Continuation\PageFlowInstance
+     * @return \Piece\Flow\Continuation\PageflowInstance
      * @since Method available since Release 2.0.0
      */
-    public function getPageFlowInstance()
+    public function getPageflowInstance()
     {
-        return $this->pageFlowInstance;
+        return $this->pageflowInstance;
     }
 
     /**
-     * @return \Piece\Flow\Continuation\PageFlowInstanceRepository
+     * @return \Piece\Flow\Continuation\PageflowInstanceRepository
      * @since Method available since Release 2.0.0
      */
-    public function getPageFlowInstanceRepository()
+    public function getPageflowInstanceRepository()
     {
-        return $this->pageFlowInstanceRepository;
+        return $this->pageflowInstanceRepository;
     }
 
     /**
@@ -226,7 +226,7 @@ class ContinuationServer
      *
      * @throws \Piece\Flow\Continuation\SecurityException
      */
-    protected function generatePageFlowInstanceID()
+    protected function generatePageflowInstanceID()
     {
         $bytes = openssl_random_pseudo_bytes(24, $cryptographicallyStrong);
         if ($bytes === false) {
@@ -236,65 +236,65 @@ class ContinuationServer
             throw new SecurityException('Any cryptographically strong algorithm is not used to generate the pseudo-random string of bytes.');
         }
 
-        $pageFlowInstanceID = base64_encode($bytes);
-        if ($pageFlowInstanceID === false) {
+        $pageflowInstanceID = base64_encode($bytes);
+        if ($pageflowInstanceID === false) {
             throw new SecurityException('Encoding the pseudo-random string of bytes with Base64 is failed.');
         }
 
-        return $pageFlowInstanceID;
+        return $pageflowInstanceID;
     }
 
     /**
      * Creates a page flow instance.
      *
      * @param  mixed                                                     $payload
-     * @return \Piece\Flow\Continuation\PageFlowInstance
-     * @throws \Piece\Flow\Continuation\PageFlowInstanceExpiredException
-     * @throws \Piece\Flow\Continuation\PageFlowIDRequiredException
-     * @throws \Piece\Flow\Continuation\PageFlowNotFoundException
-     * @throws \Piece\Flow\Continuation\UnexpectedPageFlowIDException
+     * @return \Piece\Flow\Continuation\PageflowInstance
+     * @throws \Piece\Flow\Continuation\PageflowInstanceExpiredException
+     * @throws \Piece\Flow\Continuation\PageflowIDRequiredException
+     * @throws \Piece\Flow\Continuation\PageflowNotFoundException
+     * @throws \Piece\Flow\Continuation\UnexpectedPageflowIDException
      */
-    protected function createPageFlowInstance($payload)
+    protected function createPageflowInstance($payload)
     {
-        $pageFlowID = $this->continuationContextProvider->getPageFlowID();
-        if (empty($pageFlowID)) {
-            throw new PageFlowIDRequiredException('A page flow ID must be specified.');
+        $pageflowID = $this->continuationContextProvider->getPageflowID();
+        if (empty($pageflowID)) {
+            throw new PageflowIDRequiredException('A page flow ID must be specified.');
         }
 
-        $pageFlowInstance = $this->pageFlowInstanceRepository->findByID($this->continuationContextProvider->getPageFlowInstanceID());
-        if (is_null($pageFlowInstance)) {
-            $pageFlow = $this->pageFlowInstanceRepository->getPageFlowRepository()->findByID($pageFlowID);
-            if (is_null($pageFlow)) {
-                throw new PageFlowNotFoundException(sprintf('The page flow for ID [ %s ] is not found in the repository.', $pageFlowID));
+        $pageflowInstance = $this->pageflowInstanceRepository->findByID($this->continuationContextProvider->getPageflowInstanceID());
+        if (is_null($pageflowInstance)) {
+            $pageflow = $this->pageflowInstanceRepository->getPageflowRepository()->findByID($pageflowID);
+            if (is_null($pageflow)) {
+                throw new PageflowNotFoundException(sprintf('The page flow for ID [ %s ] is not found in the repository.', $pageflowID));
             }
 
             while (true) {
-                $pageFlowInstanceID = $this->generatePageFlowInstanceID();
-                $pageFlowInstance = $this->pageFlowInstanceRepository->findByID($pageFlowInstanceID);
-                if (is_null($pageFlowInstance)) {
-                    $pageFlowInstance = new PageFlowInstance($pageFlowInstanceID, $pageFlow);
-                    $this->pageFlowInstanceRepository->add($pageFlowInstance);
+                $pageflowInstanceID = $this->generatePageflowInstanceID();
+                $pageflowInstance = $this->pageflowInstanceRepository->findByID($pageflowInstanceID);
+                if (is_null($pageflowInstance)) {
+                    $pageflowInstance = new PageflowInstance($pageflowInstanceID, $pageflow);
+                    $this->pageflowInstanceRepository->add($pageflowInstance);
                     break;
                 }
             }
         } else {
-            if ($pageFlowID != $pageFlowInstance->getPageFlowID()) {
-                throw new UnexpectedPageFlowIDException(sprintf('The specified page flow ID [ %s ] is different from the expected page flow ID [ %s ].', $pageFlowID, $pageFlowInstance->getPageFlowID()));
+            if ($pageflowID != $pageflowInstance->getPageflowID()) {
+                throw new UnexpectedPageflowIDException(sprintf('The specified page flow ID [ %s ] is different from the expected page flow ID [ %s ].', $pageflowID, $pageflowInstance->getPageflowID()));
             }
 
             if (!is_null($this->garbageCollector)) {
-                if ($this->garbageCollector->shouldSweep($pageFlowInstance->getID())) {
-                    $this->pageFlowInstanceRepository->remove($pageFlowInstance);
-                    throw new PageFlowInstanceExpiredException('The page flow instance has been expired.');
+                if ($this->garbageCollector->shouldSweep($pageflowInstance->getID())) {
+                    $this->pageflowInstanceRepository->remove($pageflowInstance);
+                    throw new PageflowInstanceExpiredException('The page flow instance has been expired.');
                 }
             }
         }
 
-        $pageFlowInstance->setActionInvoker($this->actionInvoker);
-        $pageFlowInstance->setPayload($payload);
-        $pageFlowInstance->setEventDispatcher($this->eventDispatcher);
+        $pageflowInstance->setActionInvoker($this->actionInvoker);
+        $pageflowInstance->setPayload($payload);
+        $pageflowInstance->setEventDispatcher($this->eventDispatcher);
 
-        return $pageFlowInstance;
+        return $pageflowInstance;
     }
 }
 

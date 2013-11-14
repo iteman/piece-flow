@@ -35,7 +35,7 @@
  * @since      File available since Release 2.0.0
  */
 
-namespace Piece\Flow\Continuation;
+namespace Piece\Flow\Pageflow;
 
 /**
  * @package    Piece_Flow
@@ -44,22 +44,36 @@ namespace Piece\Flow\Continuation;
  * @version    Release: @package_version@
  * @since      Class available since Release 2.0.0
  */
-interface ContinuationContextProvider
+class PageflowRegistry
 {
     /**
-     * @return string
+     * @var string
      */
-    public function getEventID();
+    protected $baseDir;
 
     /**
-     * @return string
+     * @var string
      */
-    public function getPageflowID();
+    protected $extension;
 
     /**
+     * @param string $baseDir
+     * @param string $extension
+     */
+    public function __construct($baseDir, $extension)
+    {
+        $this->baseDir = $baseDir;
+        $this->extension = $extension;
+    }
+
+    /**
+     * @param  string $id
      * @return string
      */
-    public function getPageflowInstanceID();
+    public function getFileName($id)
+    {
+        return $this->baseDir . '/' . $id . $this->extension;
+    }
 }
 
 /*

@@ -4,7 +4,7 @@
 /**
  * PHP version 5.3
  *
- * Copyright (c) 2012 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2012-2013 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,37 +29,87 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @package    Piece_Flow
- * @copyright  2012 KUBO Atsuhiro <kubo@iteman.jp>
+ * @copyright  2012-2013 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
  * @version    Release: @package_version@
  * @since      File available since Release 2.0.0
  */
 
-namespace Piece\Flow\Continuation;
+namespace Piece\Flow\Pageflow;
 
 /**
  * @package    Piece_Flow
- * @copyright  2012 KUBO Atsuhiro <kubo@iteman.jp>
+ * @copyright  2012-2013 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
  * @version    Release: @package_version@
  * @since      Class available since Release 2.0.0
  */
-interface ContinuationContextProvider
+interface PageflowInterface
 {
-    /**
-     * @return string
-     */
-    public function getEventID();
+    const EVENT_END = '__END__';
 
     /**
+     * Gets the ID of this page flow.
+     *
      * @return string
      */
-    public function getPageflowID();
+    public function getID();
 
     /**
-     * @return string
+     * @return \Symfony\Component\HttpFoundation\ParameterBag
      */
-    public function getPageflowInstanceID();
+    public function getAttributes();
+
+    /**
+     * Gets the current state.
+     *
+     * @return \Stagehand\FSM\State\StateInterface
+     */
+    public function getCurrentState();
+
+    /**
+     * Gets the previous state.
+     *
+     * @return \Stagehand\FSM\State\StateInterface
+     */
+    public function getPreviousState();
+
+    /**
+     * Gets the appropriate view string corresponding to the current state.
+     *
+     * @return string
+     * @throws \Piece\Flow\Pageflow\IncompleteTransitionException
+     */
+    public function getCurrentView();
+
+    /**
+     * Checks whether the current state is the final state or not.
+     *
+     * @return boolean
+     */
+    public function isInFinalState();
+
+    /**
+     * @param \Piece\Flow\Pageflow\ActionInvokerInterface $actionInvoker
+     */
+    public function setActionInvoker(ActionInvokerInterface $actionInvoker);
+
+    /**
+     * @return \Piece\Flow\Pageflow\ActionInvokerInterface
+     */
+    public function getActionInvoker();
+
+    /**
+     * Sets a user defined payload.
+     *
+     * @param mixed $payload
+     */
+    public function setPayload($payload);
+
+    /**
+     * @return \Stagehand\FSM\Event\TransitionEventInterface
+     */
+    public function getLastTransitionEvent();
 }
 
 /*

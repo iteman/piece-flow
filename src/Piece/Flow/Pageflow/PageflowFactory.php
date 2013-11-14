@@ -4,7 +4,7 @@
 /**
  * PHP version 5.3
  *
- * Copyright (c) 2012 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2012-2013 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,37 +29,46 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @package    Piece_Flow
- * @copyright  2012 KUBO Atsuhiro <kubo@iteman.jp>
+ * @copyright  2012-2013 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
  * @version    Release: @package_version@
  * @since      File available since Release 2.0.0
  */
 
-namespace Piece\Flow\Continuation;
+namespace Piece\Flow\Pageflow;
 
 /**
  * @package    Piece_Flow
- * @copyright  2012 KUBO Atsuhiro <kubo@iteman.jp>
+ * @copyright  2012-2013 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
  * @version    Release: @package_version@
  * @since      Class available since Release 2.0.0
  */
-interface ContinuationContextProvider
+class PageflowFactory
 {
     /**
-     * @return string
+     * @var \Piece\Flow\Pageflow\PageflowRegistries
      */
-    public function getEventID();
+    protected $pageflowRegistries;
 
     /**
-     * @return string
+     * @param \Piece\Flow\Pageflow\PageflowRegistries $pageflowRegistries
      */
-    public function getPageflowID();
+    public function __construct(PageflowRegistries $pageflowRegistries)
+    {
+        $this->pageflowRegistries = $pageflowRegistries;
+    }
 
     /**
-     * @return string
+     * @param  string                                 $id
+     * @return \Piece\Flow\Pageflow\PageflowInterface
      */
-    public function getPageflowInstanceID();
+    public function create($id)
+    {
+        $pageflowGenerator = new PageflowGenerator(new Pageflow($id), $this->pageflowRegistries);
+
+        return $pageflowGenerator->generate();
+    }
 }
 
 /*

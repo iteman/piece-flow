@@ -4,7 +4,7 @@
 /**
  * PHP version 5.3
  *
- * Copyright (c) 2012 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2013 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,37 +29,45 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @package    Piece_Flow
- * @copyright  2012 KUBO Atsuhiro <kubo@iteman.jp>
+ * @copyright  2013 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
  * @version    Release: @package_version@
  * @since      File available since Release 2.0.0
  */
 
-namespace Piece\Flow\Continuation;
+namespace Piece\Flow\Pageflow\State;
+
+use Stagehand\FSM\State\State;
 
 /**
  * @package    Piece_Flow
- * @copyright  2012 KUBO Atsuhiro <kubo@iteman.jp>
+ * @copyright  2013 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
  * @version    Release: @package_version@
  * @since      Class available since Release 2.0.0
  */
-interface ContinuationContextProvider
+class ViewState extends State implements ViewStateInterface
 {
     /**
-     * @return string
+     * @var string
      */
-    public function getEventID();
+    protected $view;
 
     /**
-     * @return string
+     * @param string $view
      */
-    public function getPageflowID();
+    public function setView($view)
+    {
+        $this->view = $view;
+    }
 
     /**
-     * @return string
+     * {@inheritDoc}
      */
-    public function getPageflowInstanceID();
+    public function getView()
+    {
+        return $this->view;
+    }
 }
 
 /*
