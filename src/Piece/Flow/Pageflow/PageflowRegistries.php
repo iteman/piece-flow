@@ -15,11 +15,7 @@ namespace Piece\Flow\Pageflow;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @package    Piece_Flow
- * @copyright  2013 KUBO Atsuhiro <kubo@iteman.jp>
- * @license    http://opensource.org/licenses/BSD-2-Clause  The BSD 2-Clause License
- * @version    Release: @package_version@
- * @since      Class available since Release 2.0.0
+ * @since Class available since Release 2.0.0
  */
 class PageflowRegistries extends ArrayCollection
 {
