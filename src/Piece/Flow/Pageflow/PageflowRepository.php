@@ -40,7 +40,7 @@ class PageflowRepository
     /**
      * @var \Piece\Flow\Pageflow\PageflowCache[]
      */
-    protected $pageflows = array();
+    protected $pageflowCaches = array();
 
     /**
      * @param \Piece\Flow\Pageflow\PageflowRegistries $pageflowRegistries
@@ -61,7 +61,7 @@ class PageflowRepository
      */
     public function add($id)
     {
-        if (array_key_exists($id, $this->pageflows)) return;
+        if (array_key_exists($id, $this->pageflowCaches)) return;
 
         $definitionFile = $this->pageflowRegistries->getFileName($id);
         if (is_null($definitionFile)) {
@@ -73,7 +73,7 @@ class PageflowRepository
             $pageflowCache->write($this->pageflowFactory->create($id));
         }
 
-        $this->pageflows[$id] = $pageflowCache;
+        $this->pageflowCaches[$id] = $pageflowCache;
     }
 
     /**
@@ -82,8 +82,8 @@ class PageflowRepository
      */
     public function findByID($id)
     {
-        if (array_key_exists($id, $this->pageflows)) {
-            return $this->pageflows[$id]->read();
+        if (array_key_exists($id, $this->pageflowCaches)) {
+            return $this->pageflowCaches[$id]->read();
         } else {
             return null;
         }
