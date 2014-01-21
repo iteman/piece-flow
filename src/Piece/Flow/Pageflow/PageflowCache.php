@@ -53,14 +53,6 @@ class PageflowCache
         $this->debug = $debug;
     }
 
-    public function __destruct()
-    {
-        if ($this->debug && file_exists($this->cacheFile)) {
-            unlink($this->cacheFile);
-            unlink($this->cacheFile . '.meta');
-        }
-    }
-
     /**
      * @return boolean
      */
