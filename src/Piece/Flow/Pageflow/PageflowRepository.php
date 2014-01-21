@@ -25,7 +25,7 @@ class PageflowRepository
     /**
      * @var string
      */
-    protected $debug = false;
+    protected $debug;
 
     /**
      * @var \Piece\Flow\Pageflow\PageflowFactory
