@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2012-2013 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2012-2014 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * This file is part of Piece_Flow.
@@ -28,7 +28,7 @@ class PageflowCache
     /**
      * @var string
      */
-    protected $clearCacheOnDestruction;
+    protected $debug;
 
     /**
      * @var \Symfony\Component\Config\ConfigCache
@@ -43,19 +43,19 @@ class PageflowCache
     /**
      * @param string  $definitionFile
      * @param string  $cacheDir
-     * @param boolean $clearCacheOnDestruction
+     * @param boolean $debug
      */
-    public function __construct($definitionFile, $cacheDir, $clearCacheOnDestruction)
+    public function __construct($definitionFile, $cacheDir, $debug)
     {
         $this->definitionFile = $definitionFile;
         $this->cacheFile = $cacheDir . '/' . sha1($this->definitionFile) . '.cache';
         $this->configCache = new ConfigCache($this->cacheFile, true);
-        $this->clearCacheOnDestruction = $clearCacheOnDestruction;
+        $this->debug = $debug;
     }
 
     public function __destruct()
     {
-        if ($this->clearCacheOnDestruction && file_exists($this->cacheFile)) {
+        if ($this->debug && file_exists($this->cacheFile)) {
             unlink($this->cacheFile);
             unlink($this->cacheFile . '.meta');
         }

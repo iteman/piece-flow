@@ -25,7 +25,7 @@ class PageflowRepository
     /**
      * @var string
      */
-    protected $clearCacheOnDestruction = false;
+    protected $debug = false;
 
     /**
      * @var \Piece\Flow\Pageflow\PageflowFactory
@@ -45,14 +45,14 @@ class PageflowRepository
     /**
      * @param \Piece\Flow\Pageflow\PageflowRegistries $pageflowRegistries
      * @param string                                  $cacheDir
-     * @param boolean                                 $clearCacheOnDestruction
+     * @param boolean                                 $debug
      */
-    public function __construct(PageflowRegistries $pageflowRegistries, $cacheDir, $clearCacheOnDestruction = false)
+    public function __construct(PageflowRegistries $pageflowRegistries, $cacheDir, $debug = false)
     {
         $this->pageflowRegistries = $pageflowRegistries;
         $this->pageflowFactory = new PageflowFactory($this->pageflowRegistries);
         $this->cacheDir = $cacheDir;
-        $this->clearCacheOnDestruction = $clearCacheOnDestruction;
+        $this->debug = $debug;
     }
 
     /**
@@ -68,7 +68,7 @@ class PageflowRepository
             throw new FileNotFoundException(sprintf('The page flow definition file for the page flow ID "%s" is not found.', $id));
         }
 
-        $pageflowCache = new PageflowCache($definitionFile, $this->cacheDir, $this->clearCacheOnDestruction);
+        $pageflowCache = new PageflowCache($definitionFile, $this->cacheDir, $this->debug);
         if (!$pageflowCache->isFresh()) {
             $pageflowCache->write($this->pageflowFactory->create($id));
         }
