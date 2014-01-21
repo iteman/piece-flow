@@ -26,11 +26,6 @@ class PageflowCache
     protected $cacheFile;
 
     /**
-     * @var string
-     */
-    protected $debug;
-
-    /**
      * @var \Symfony\Component\Config\ConfigCache
      */
     protected $configCache;
@@ -50,7 +45,6 @@ class PageflowCache
         $this->definitionFile = $definitionFile;
         $this->cacheFile = $cacheDir . '/' . sha1($this->definitionFile) . '.cache';
         $this->configCache = new ConfigCache($this->cacheFile, $debug);
-        $this->debug = $debug;
     }
 
     /**
