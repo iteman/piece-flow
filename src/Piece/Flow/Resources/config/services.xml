@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2014 KUBO Atsuhiro <kubo@iteman.jp>,
+All rights reserved.
+
+This file is part of Piece_Flow.
+
+This program and the accompanying materials are made available under
+the terms of the BSD 2-Clause License which accompanies this
+distribution, and is available at http://opensource.org/licenses/BSD-2-Clause
+-->
+<container xmlns="http://symfony.com/schema/dic/services"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+  <parameters>
+    <!-- Configuration Parameters -->
+    <parameter key="piece_flow.base_dirs" type="collection"/>
+    <parameter key="piece_flow.cache_dir"/>
+    <parameter key="piece_flow.debug"/>
+    <parameter key="piece_flow.exclusive_pageflows" type="collection"/>
+    <parameter key="piece_flow.file_extension"/>
+    <parameter key="piece_flow.garbage_collection_enabled"/>
+    <parameter key="piece_flow.garbage_collection_expiration_time"/>
+
+    <!-- Classes -->
+    <parameter key="piece_flow.clock.class">Piece\Flow\Continuation\GarbageCollection\Clock</parameter>
+    <parameter key="piece_flow.continuation_server.class">Piece\Flow\Continuation\ContinuationServer</parameter>
+    <parameter key="piece_flow.garbage_collector.class">Piece\Flow\Continuation\GarbageCollection\GarbageCollector</parameter>
+    <parameter key="piece_flow.pageflow_instance_repository.class">Piece\Flow\Continuation\PageflowInstanceRepository</parameter>
+    <parameter key="piece_flow.pageflow_registries.class">Piece\Flow\Pageflow\PageflowRegistries</parameter>
+    <parameter key="piece_flow.pageflow_registries_factory.class">Piece\Flow\Pageflow\PageflowRegistriesFactory</parameter>
+    <parameter key="piece_flow.pageflow_repository.class">Piece\Flow\Pageflow\PageflowRepository</parameter>
+  </parameters>
+
+  <services>
+    <service id="piece_flow.clock" class="%piece_flow.clock.class%">
+    </service>
+    <service id="piece_flow.continuation_server" class="%piece_flow.continuation_server.class%">
+      <argument type="service" id="piece_flow.pageflow_instance_repository"/>
+      <argument type="service" id="piece_flow.pageflow_repository"/>
+      <argument>%piece_flow.exclusive_pageflows%</argument>
+      <argument type="service" id="piece_flow.garbage_collector" on-invalid="null"/>
+    </service>
+    <service id="piece_flow.garbage_collector" class="%piece_flow.garbage_collector.class%">
+      <argument>%piece_flow.garbage_collection_expiration_time%</argument>
+      <argument type="service" id="piece_flow.clock"/>
+    </service>
+    <service id="piece_flow.pageflow_instance_repository" class="%piece_flow.pageflow_instance_repository.class%">
+      <argument type="service" id="piece_flow.pageflow_repository"/>
+    </service>
+    <service id="piece_flow.pageflow_registries" class="%piece_flow.pageflow_registries.class%" factory-service="piece_flow.pageflow_registries_factory" factory-method="create">
+    </service>
+    <service id="piece_flow.pageflow_registries_factory" class="%piece_flow.pageflow_registries_factory.class%">
+      <argument>%piece_flow.base_dirs%</argument>
+      <argument>%piece_flow.file_extension%</argument>
+    </service>
+    <service id="piece_flow.pageflow_repository" class="%piece_flow.pageflow_repository.class%">
+      <argument type="service" id="piece_flow.pageflow_registries"/>
+      <argument>%piece_flow.cache_dir%</argument>
+      <argument>%piece_flow.debug%</argument>
+    </service>
+  </services>
+</container>
