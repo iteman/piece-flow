@@ -12,8 +12,6 @@
 
 namespace Piece\Flow\Continuation\GarbageCollection;
 
-use Piece\Flow\Continuation\GarbageCollection\Clock;
-
 /**
  * The garbage collector for expired page flow instances.
  *
