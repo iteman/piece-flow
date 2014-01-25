@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2012-2013 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2012-2014 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * This file is part of Piece_Flow.
@@ -33,13 +33,21 @@ class PageflowInstance implements PageflowInterface
     protected $pageflow;
 
     /**
+     * @var boolean
+     * @since Property available since Release 2.0.0
+     */
+    protected $exclusive;
+
+    /**
      * @param string                                 $id
      * @param \Piece\Flow\Pageflow\PageflowInterface $pageflow
+     * @param boolean                                $exclusive
      */
-    public function __construct($id, PageflowInterface $pageflow)
+    public function __construct($id, PageflowInterface $pageflow, $exclusive)
     {
         $this->id = $id;
         $this->pageflow = $pageflow;
+        $this->exclusive = $exclusive;
     }
 
     /**
@@ -137,5 +145,14 @@ class PageflowInstance implements PageflowInterface
     public function getLastTransitionEvent()
     {
         return $this->pageflow->getLastTransitionEvent();
+    }
+
+    /**
+     * @return boolean
+     * @since Method available since Release 2.0.0
+     */
+    public function isExclusive()
+    {
+        return $this->exclusive;
     }
 }

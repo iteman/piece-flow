@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2007-2008, 2012 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2007-2008, 2012-2014 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * This file is part of Piece_Flow.
@@ -11,8 +11,6 @@
  */
 
 namespace Piece\Flow\Continuation;
-
-use Piece\Flow\Pageflow\PageflowRepository;
 
 /**
  * The repository for the page flow instances.
@@ -25,48 +23,13 @@ class PageflowInstanceRepository
     protected $exclusivePageflowInstances = array();
 
     /**
-     * @var \Piece\Flow\Pageflow\PageflowRepository
-     * @since Property available since Release 2.0.0
-     */
-    protected $pageflowRepository;
-
-    /**
-     * @var array
-     * @since Property available since Release 2.0.0
-     */
-    protected $exclusivePageflows = array();
-
-    /**
-     * @param \Piece\Flow\Pageflow\PageflowRepository $pageflowRepository
-     * @since Method available since Release 2.0.0
-     */
-    public function __construct(PageflowRepository $pageflowRepository)
-    {
-        $this->pageflowRepository = $pageflowRepository;
-    }
-
-    /**
-     * Adds a page flow into the page flow repository.
-     *
-     * @param string  $pageflowID
-     * @param boolean $exclusive
-     */
-    public function addPageflow($pageflowID, $exclusive)
-    {
-        $this->pageflowRepository->add($pageflowID);
-        if ($exclusive) {
-            $this->exclusivePageflows[] = $pageflowID;
-        }
-    }
-
-    /**
      * Removes a page flow instance.
      *
      * @param \Piece\Flow\Continuation\PageflowInstance $pageflowInstance
      */
     public function remove(PageflowInstance $pageflowInstance)
     {
-        if ($this->checkPageflowHasExclusiveInstance($pageflowInstance->getPageflowID())) {
+        if ($pageflowInstance->isExclusive()) {
             unset($this->exclusivePageflowInstances[ $pageflowInstance->getPageflowID() ]);
         }
 
@@ -80,13 +43,9 @@ class PageflowInstanceRepository
      */
     public function add(PageflowInstance $pageflowInstance)
     {
-        $exclusivePageflowInstance = $this->findByPageflowID($pageflowInstance->getPageflowID());
-        if (!is_null($exclusivePageflowInstance)) {
-            $this->remove($exclusivePageflowInstance);
-        }
-
         $this->pageflowInstances[ $pageflowInstance->getID() ] = $pageflowInstance;
-        if ($this->checkPageflowIsExclusive($pageflowInstance)) {
+
+        if ($pageflowInstance->isExclusive()) {
             $this->exclusivePageflowInstances[ $pageflowInstance->getPageflowID() ] = $pageflowInstance->getID();
         }
     }

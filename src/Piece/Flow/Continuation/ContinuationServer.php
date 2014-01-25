@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2006-2008, 2012-2013 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2006-2008, 2012-2014 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * This file is part of Piece_Flow.
@@ -16,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 use Piece\Flow\Continuation\GarbageCollection\GarbageCollector;
 use Piece\Flow\Pageflow\ActionInvokerInterface;
+use Piece\Flow\Pageflow\PageflowRepository;
 
 /**
  * The continuation server.
@@ -33,6 +34,18 @@ class ContinuationServer
      * @var \Piece\Flow\Continuation\PageflowInstanceRepository
      */
     protected $pageflowInstanceRepository;
+
+    /**
+     * @var \Piece\Flow\Pageflow\PageflowRepository
+     * @since Property available since Release 2.0.0
+     */
+    protected $pageflowRepository;
+
+    /**
+     * @var array
+     * @since Property available since Release 2.0.0
+     */
+    protected $exclusivePageflows;
 
     /**
      * @var \Piece\Flow\Pageflow\ActionInvokerInterface
@@ -63,11 +76,15 @@ class ContinuationServer
 
     /**
      * @param \Piece\Flow\Continuation\PageflowInstanceRepository         $pageflowInstanceRepository
+     * @param \Piece\Flow\Pageflow\PageflowRepository                     $pageflowRepository
+     * @param array                                                       $exclusivePageflows
      * @param \Piece\Flow\Continuation\GarbageCollection\GarbageCollector $garbageCollector
      */
-    public function __construct(PageflowInstanceRepository $pageflowInstanceRepository, GarbageCollector $garbageCollector = null)
+    public function __construct(PageflowInstanceRepository $pageflowInstanceRepository, PageflowRepository $pageflowRepository, array $exclusivePageflows, GarbageCollector $garbageCollector = null)
     {
         $this->pageflowInstanceRepository = $pageflowInstanceRepository;
+        $this->pageflowRepository = $pageflowRepository;
+        $this->exclusivePageflows = $exclusivePageflows;
         $this->garbageCollector = $garbageCollector;
     }
 
@@ -80,6 +97,8 @@ class ContinuationServer
         return array(
             'garbageCollector',
             'pageflowInstanceRepository',
+            'pageflowRepository',
+            'exclusivePageflows',
         );
     }
 
@@ -97,7 +116,7 @@ class ContinuationServer
         $this->pageflowInstance = $this->createPageflowInstance($payload);
         $this->pageflowInstance->activate($this->continuationContextProvider->getEventID());
 
-        if (!is_null($this->garbageCollector) && !$this->pageflowInstanceRepository->checkPageflowIsExclusive($this->pageflowInstance)) {
+        if (!is_null($this->garbageCollector) && !in_array($this->pageflowInstance->getPageflowID(), $this->exclusivePageflows)) {
             $this->garbageCollector->update($this->pageflowInstance->getID());
         }
 
@@ -234,7 +253,7 @@ class ContinuationServer
 
         $pageflowInstance = $this->pageflowInstanceRepository->findByID($this->continuationContextProvider->getPageflowInstanceID());
         if (is_null($pageflowInstance)) {
-            $pageflow = $this->pageflowInstanceRepository->getPageflowRepository()->findByID($pageflowID);
+            $pageflow = $this->pageflowRepository->findByID($pageflowID);
             if (is_null($pageflow)) {
                 throw new PageflowNotFoundException(sprintf('The page flow for ID [ %s ] is not found in the repository.', $pageflowID));
             }
@@ -243,7 +262,17 @@ class ContinuationServer
                 $pageflowInstanceID = $this->generatePageflowInstanceID();
                 $pageflowInstance = $this->pageflowInstanceRepository->findByID($pageflowInstanceID);
                 if (is_null($pageflowInstance)) {
-                    $pageflowInstance = new PageflowInstance($pageflowInstanceID, $pageflow);
+                    if (in_array($pageflow->getID(), $this->exclusivePageflows)) {
+                        $exclusivePageflowInstance = $this->pageflowInstanceRepository->findByPageflowID($pageflow->getID());
+                        if (!is_null($exclusivePageflowInstance)) {
+                            $this->pageflowInstanceRepository->remove($exclusivePageflowInstance);
+                        }
+
+                        $pageflowInstance = new PageflowInstance($pageflowInstanceID, $pageflow, true);
+                    } else {
+                        $pageflowInstance = new PageflowInstance($pageflowInstanceID, $pageflow, false);
+                    }
+
                     $this->pageflowInstanceRepository->add($pageflowInstance);
                     break;
                 }

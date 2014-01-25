@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2006-2008, 2012-2013 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2006-2008, 2012-2014 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * This file is part of Piece_Flow.
@@ -84,9 +84,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      */
     public function startsPageflowInstancesForAnExclusivePageflow()
     {
-        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
-        $pageflowInstanceRepository->addPageflow('Counter', true);
-        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
+        $continuationServer = $this->createContinuationServer(array('Counter'));
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
@@ -117,9 +115,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      */
     public function startsPageflowInstancesForANonExclusivePageflow()
     {
-        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
-        $pageflowInstanceRepository->addPageflow('Counter', false);
-        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
+        $continuationServer = $this->createContinuationServer(array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
@@ -150,10 +146,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      */
     public function startsPageflowInstancesForMultiplePageflows()
     {
-        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
-        $pageflowInstanceRepository->addPageflow('Counter', false);
-        $pageflowInstanceRepository->addPageflow('SecondCounter', false);
-        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
+        $continuationServer = $this->createContinuationServer(array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
@@ -184,9 +177,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      */
     public function continuesAPageflowInstance()
     {
-        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
-        $pageflowInstanceRepository->addPageflow('Counter', false);
-        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
+        $continuationServer = $this->createContinuationServer(array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
@@ -215,10 +206,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      */
     public function raisesAnExceptionWhenAnUnexpectedPageflowIdIsSpecifiedForTheSecondTimeOrLater()
     {
-        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
-        $pageflowInstanceRepository->addPageflow('Counter', false);
-        $pageflowInstanceRepository->addPageflow('SecondCounter', false);
-        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
+        $continuationServer = $this->createContinuationServer(array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
@@ -245,9 +233,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      */
     public function findsThePageflowInstanceByAPageflowId($exclusive)
     {
-        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
-        $pageflowInstanceRepository->addPageflow('Counter', $exclusive);
-        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
+        $continuationServer = $this->createContinuationServer($exclusive ? array('Counter') : array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
@@ -286,9 +272,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
         \Phake::when($clock)->now()
             ->thenReturn(new \DateTime($firstTime))
             ->thenReturn(new \DateTime($secondTime));
-        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
-        $pageflowInstanceRepository->addPageflow('Counter', false);
-        $continuationServer = new ContinuationServer($pageflowInstanceRepository, new GarbageCollector($expirationTime, $clock));
+        $continuationServer = $this->createContinuationServer(array(), new GarbageCollector($expirationTime, $clock));
         $continuationServer->setActionInvoker(\Phake::mock('Piece\Flow\Pageflow\ActionInvokerInterface'));
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
@@ -335,9 +319,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      */
     public function validatesTheLastReceivedEvent()
     {
-        $pageflowInstanceRepository = $this->createPageflowInstanceRepository();
-        $pageflowInstanceRepository->addPageflow('CheckLastEvent', false);
-        $continuationServer = new ContinuationServer($pageflowInstanceRepository);
+        $continuationServer = $this->createContinuationServer(array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
         $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
         $continuationServer->setEventDispatcher(new EventDispatcher());
@@ -395,6 +377,37 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
      */
     protected function createPageflowInstanceRepository()
     {
-        return new PageflowInstanceRepository(new PageflowRepository(new PageflowRegistries(array(new PageflowRegistry($this->cacheDirectory, '.yaml'))), $this->cacheDirectory, true));
+        return new PageflowInstanceRepository();
+    }
+
+    /**
+     * @since Method available since Release 2.0.0
+     *
+     * @return \Piece\Flow\Pageflow\PageflowRepository
+     */
+    protected function createPageflowRepository()
+    {
+        return new PageflowRepository(new PageflowRegistries(array(new PageflowRegistry($this->cacheDirectory, '.yaml'))), $this->cacheDirectory, true);
+    }
+
+    /**
+     * @param  array                                                       $exclusivePageflows
+     * @param  \Piece\Flow\Continuation\GarbageCollection\GarbageCollector $garbageCollector
+     * @return \Piece\Flow\Continuation\ContinuationServer
+     * @since Method available since Release 2.0.0
+     */
+    protected function createContinuationServer(array $exclusivePageflows, GarbageCollector $garbageCollector = null)
+    {
+        $pageflowRepository = new PageflowRepository(new PageflowRegistries(array(new PageflowRegistry($this->cacheDirectory, '.yaml'))), $this->cacheDirectory, true);
+        $pageflowRepository->add('Counter');
+        $pageflowRepository->add('SecondCounter');
+        $pageflowRepository->add('CheckLastEvent');
+
+        return new ContinuationServer(
+            new PageflowInstanceRepository(),
+            $pageflowRepository,
+            $exclusivePageflows,
+            $garbageCollector
+        );
     }
 }
