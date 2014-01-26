@@ -54,10 +54,10 @@ class ContinuationServer
     protected $actionInvoker;
 
     /**
-     * @var \Piece\Flow\Continuation\ContinuationContextProvider
+     * @var \Piece\Flow\Continuation\ContinuationContextInterface
      * @since Property available since Release 2.0.0
      */
-    protected $continuationContextProvider;
+    protected $continuationContext;
 
     /**
      * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
@@ -114,7 +114,7 @@ class ContinuationServer
         }
 
         $this->pageflowInstance = $this->createPageflowInstance($payload);
-        $this->pageflowInstance->activate($this->continuationContextProvider->getEventID());
+        $this->pageflowInstance->activate($this->continuationContext->getEventID());
 
         if (!is_null($this->garbageCollector) && !in_array($this->pageflowInstance->getPageflowID(), $this->exclusivePageflows)) {
             $this->garbageCollector->update($this->pageflowInstance->getID());
@@ -176,12 +176,12 @@ class ContinuationServer
     }
 
     /**
-     * @param \Piece\Flow\Continuation\ContinuationContextProvider $continuationContextProvider
+     * @param \Piece\Flow\Continuation\ContinuationContextInterface $continuationContext
      * @since Method available since Release 2.0.0
      */
-    public function setContinuationContextProvider(ContinuationContextProvider $continuationContextProvider)
+    public function setContinuationContext(ContinuationContextInterface $continuationContext)
     {
-        $this->continuationContextProvider = $continuationContextProvider;
+        $this->continuationContext = $continuationContext;
     }
 
     /**
@@ -246,12 +246,12 @@ class ContinuationServer
      */
     protected function createPageflowInstance($payload)
     {
-        $pageflowID = $this->continuationContextProvider->getPageflowID();
+        $pageflowID = $this->continuationContext->getPageflowID();
         if (empty($pageflowID)) {
             throw new PageflowIDRequiredException('A page flow ID must be specified.');
         }
 
-        $pageflowInstance = $this->pageflowInstanceRepository->findByID($this->continuationContextProvider->getPageflowInstanceID());
+        $pageflowInstance = $this->pageflowInstanceRepository->findByID($this->continuationContext->getPageflowInstanceID());
         if (is_null($pageflowInstance)) {
             $pageflow = $this->pageflowRepository->findByID($pageflowID);
             if (is_null($pageflow)) {

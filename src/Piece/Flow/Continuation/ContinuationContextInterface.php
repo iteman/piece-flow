@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2012 KUBO Atsuhiro <kubo@iteman.jp>,
+ * Copyright (c) 2012-2014 KUBO Atsuhiro <kubo@iteman.jp>,
  * All rights reserved.
  *
  * This file is part of Piece_Flow.
@@ -15,7 +15,7 @@ namespace Piece\Flow\Continuation;
 /**
  * @since Class available since Release 2.0.0
  */
-interface ContinuationContextProvider
+interface ContinuationContextInterface
 {
     /**
      * @return string

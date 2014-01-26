@@ -47,10 +47,10 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
     protected $eventID;
 
     /**
-     * @var \Piece\Flow\Continuation\ContinuationContextProvider
+     * @var \Piece\Flow\Continuation\ContinuationContextInterface
      * @since Property available since Release 2.0.0
      */
-    protected $continuationContextProvider;
+    protected $continuationContext;
 
     public function getPageflowInstanceID()
     {
@@ -70,11 +70,11 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->cacheDirectory = dirname(__FILE__) . '/' . basename(__FILE__, '.php');
-        $this->continuationContextProvider = \Phake::mock('Piece\Flow\Continuation\ContinuationContextProvider');
+        $this->continuationContext = \Phake::mock('Piece\Flow\Continuation\ContinuationContextInterface');
         $self = $this;
-        \Phake::when($this->continuationContextProvider)->getEventID()->thenGetReturnByLambda(function () use ($self) { return $self->getEventID(); });
-        \Phake::when($this->continuationContextProvider)->getPageflowID()->thenGetReturnByLambda(function () use ($self) { return $self->getPageflowID(); });
-        \Phake::when($this->continuationContextProvider)->getPageflowInstanceID()->thenGetReturnByLambda(function () use ($self) { return $self->getPageflowInstanceID(); });
+        \Phake::when($this->continuationContext)->getEventID()->thenGetReturnByLambda(function () use ($self) { return $self->getEventID(); });
+        \Phake::when($this->continuationContext)->getPageflowID()->thenGetReturnByLambda(function () use ($self) { return $self->getPageflowID(); });
+        \Phake::when($this->continuationContext)->getPageflowInstanceID()->thenGetReturnByLambda(function () use ($self) { return $self->getPageflowInstanceID(); });
     }
 
     /**
@@ -86,7 +86,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
     {
         $continuationServer = $this->createContinuationServer(array('Counter'));
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
-        $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
+        $continuationServer->setContinuationContext($this->continuationContext);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
         $this->pageflowID = 'Counter';
@@ -117,7 +117,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
     {
         $continuationServer = $this->createContinuationServer(array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
-        $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
+        $continuationServer->setContinuationContext($this->continuationContext);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
         $this->pageflowID = 'Counter';
@@ -148,7 +148,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
     {
         $continuationServer = $this->createContinuationServer(array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
-        $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
+        $continuationServer->setContinuationContext($this->continuationContext);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
         $this->pageflowID = 'Counter';
@@ -179,7 +179,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
     {
         $continuationServer = $this->createContinuationServer(array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
-        $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
+        $continuationServer->setContinuationContext($this->continuationContext);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
         $this->pageflowID = 'Counter';
@@ -208,7 +208,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
     {
         $continuationServer = $this->createContinuationServer(array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
-        $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
+        $continuationServer->setContinuationContext($this->continuationContext);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
         $this->pageflowID = 'Counter';
@@ -235,7 +235,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
     {
         $continuationServer = $this->createContinuationServer($exclusive ? array('Counter') : array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
-        $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
+        $continuationServer->setContinuationContext($this->continuationContext);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
         $this->pageflowID = 'Counter';
@@ -274,7 +274,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
             ->thenReturn(new \DateTime($secondTime));
         $continuationServer = $this->createContinuationServer(array(), new GarbageCollector($expirationTime, $clock));
         $continuationServer->setActionInvoker(\Phake::mock('Piece\Flow\Pageflow\ActionInvokerInterface'));
-        $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
+        $continuationServer->setContinuationContext($this->continuationContext);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
         $this->pageflowID = 'Counter';
@@ -321,7 +321,7 @@ class ContinuationServerTest extends \PHPUnit_Framework_TestCase
     {
         $continuationServer = $this->createContinuationServer(array());
         $continuationServer->setActionInvoker($this->createCounterActionInvoker());
-        $continuationServer->setContinuationContextProvider($this->continuationContextProvider);
+        $continuationServer->setContinuationContext($this->continuationContext);
         $continuationServer->setEventDispatcher(new EventDispatcher());
 
         $this->pageflowID = 'CheckLastEvent';
